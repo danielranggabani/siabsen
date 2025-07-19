@@ -19,6 +19,11 @@ const mainNavItems: NavItem[] = [
         href: '/kantor',
         icon: LayoutGrid,
     },
+    {
+        title: 'Scan Qr',
+        href: '/scan-qr',
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

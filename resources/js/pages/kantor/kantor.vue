@@ -45,13 +45,16 @@ const handleDelete = (id) => {
             </template>
 
             <template v-for="(k, index) in props.kantor" :key="index">
-                <Card class="m-4 mt-4 gap-0 bg-sidebar p-4">
-                    <h1 class="text-xl font-extrabold">{{ k.name }}</h1>
-                    <p class="text-muted-foreground">{{ k.lokasi }}</p>
+                <Card class="m-4 mt-4 flex flex-row justify-between gap-0 bg-sidebar p-4">
+                    <div class="container-text">
+                        <h1 class="text-xl font-extrabold">{{ k.name }}</h1>
+                        <p class="text-muted-foreground">{{ k.lokasi }}</p>
+                    </div>
                     <div class="container-button space-x-1.5 pt-2">
                         <Link :href="route('kantor.show', k.id)" class="mt-2"><Button>View</Button></Link>
                         <Link :href="route('kantor.edit', k.id)" class="mt-2"><Button variant="secondary">Edit</Button></Link>
                         <Button variant="destructive" @click="handleDelete(k.id)">Delete</Button>
+                        <img :src="k.qr_code" alt="" class="w-52 pt-5" />
                     </div>
                 </Card>
             </template>

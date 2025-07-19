@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KantorController;
 use App\Http\Controllers\QrCodeController;
+use PhpParser\Node\Stmt\Return_;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -15,6 +16,9 @@ Route::get('dashboard', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('kantor', KantorController::class);
+    Route::get('/scan-qr', function () {
+        return view('scanner');
+    });
 });
 
 require __DIR__ . '/settings.php';

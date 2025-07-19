@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Kantor;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -34,21 +37,54 @@ class KantorController extends Controller
      */
     public function store(Request $request)
     {
+
+        // validasi jika valid
         $request->validate([
             'name' => 'min:3|required',
-            'lokasi' => 'required'
+            'lokasi' => 'required',
         ]);
 
-        $qr_code = QrCode::format('png')->generate($request->name);
-        $qrImageName = $request->id . '.png';
+        // buat data untuk qr biar bisa di confirm
+        $qr_data = (Auth::user()->id . Carbon::now()->timestamp);
 
-        // Kantor::create([
-        //     'name' => $request->name,
-        //     'lokasi' => $request->lokasi,
-        //     'qr_code' => $qrImageName,
-        // ]);
+        $data_ecription = encrypt($qr_data);
 
-        Storage::put('public/qr/' . $qrImageName, $qr_code);
+        //untuk keperluan name file supaya tidak ada spasi jadi saya tangkap dan slug
+        $nameOri = $request->name;
+
+        //untuk kebutuhan warna supaya pas dengan backround dan keren
+        QrCode::color(0, 0, 255, 25);
+        QrCode::backgroundColor(255, 0, 0);
+
+        // jadi slug
+        $name = Str::slug($nameOri);
+
+        // buat qr code
+        $qr_code = QrCode::color(250, 250, 250)->backgroundColor(18, 18, 18)->format('svg')->generate($data_ecription);
+        $qrImageName = $name . '.svg';
+        $qrImageNameAsli = $qrImageName;
+        $count = 1;
+
+        //supaya nama file tidak sama saya confirm dulu gak ada baru saya buat
+        while (Kantor::where('qr_code', $qrImageName)->exists()) {
+            $qrImageName = $count . $qrImageNameAsli;
+            $count++;
+        }
+
+        $path = Storage::url('public/' . $qrImageName);
+
+        Kantor::create([
+            'name' => $request->name,
+            'lokasi' => $request->lokasi,
+            'qr_code' => $path,
+        ]);
+
+        // dd($qr_code);
+
+
+        // Storage::disk('public')->put('public/qr', $qr_code);
+
+        Storage::put('public/' . $qrImageName, $qr_code);
 
         return redirect()->route('kantor.index')->with('message', 'Berhasil Membuat Kantor');
     }
